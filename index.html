@@ -1,0 +1,629 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LOANX — Income Verification Requirements</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --accent:#0b72ff;
+      --muted:#556;
+      --glass: rgba(255,255,255,0.6);
+      --maxw:1100px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#eef3fb);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+      padding:24px;
+      display:flex;
+      justify-content:center;
+    }
+    .container{
+      width:100%;
+      max-width:var(--maxw);
+      background:var(--card);
+      box-shadow:0 8px 30px rgba(20,30,60,0.08);
+      border-radius:12px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      gap:0;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background:linear-gradient(180deg,#fbfcff,#f3f7ff);
+      padding:20px;
+      border-right:1px solid #e6eefc;
+      min-height:420px;
+    }
+    .logo{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .logo .dot{
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#00b7ff);
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;
+      box-shadow:0 6px 20px rgba(11,114,255,0.14);
+    }
+    h1.title{font-size:18px;margin:0}
+    p.sub{margin:6px 0 18px;color:var(--muted);font-size:13px}
+
+    nav.toc{font-size:14px}
+    nav.toc a{
+      display:block;padding:8px 10px;margin:6px 0;border-radius:8px;color:#0f1724;text-decoration:none;
+    }
+    nav.toc a:hover{background:#eef6ff;color:var(--accent);}
+
+    /* Main */
+    .main{
+      padding:28px 36px;
+      overflow:auto;
+      max-height:85vh;
+    }
+    .meta{
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+    }
+    .meta .by{color:var(--muted);font-size:13px}
+    header h2{margin:0 0 6px;font-size:20px}
+    header p.lead{margin:0;color:var(--muted)}
+
+    section.card{
+      background:linear-gradient(180deg,white, #fcfdff);
+      border-radius:10px;
+      padding:18px;
+      margin:18px 0;
+      box-shadow:0 4px 18px rgba(10,20,40,0.03);
+    }
+    section.card h3{margin-top:0}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    table.spec{width:100%;border-collapse:collapse;margin-top:8px}
+    table.spec th, table.spec td{padding:8px 10px;border-bottom:1px solid #eef4ff;text-align:left;font-size:14px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;background:#eef6ff;color:var(--accent);border:1px solid #e3f0ff}
+    .proto{
+      border:1px dashed #e1e8ff;padding:12px;border-radius:8px;color:var(--muted);text-align:center;
+      min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    }
+    footer{font-size:13px;color:var(--muted);margin-top:14px;border-top:1px dashed #eef4ff;padding-top:10px}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr; padding:0}
+      .sidebar{display:none}
+      .main{padding:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="document" aria-label="LOANX Income Verification Requirements">
+    <aside class="sidebar" aria-label="Table of contents">
+      <div class="logo" aria-hidden="true">
+        <div class="dot">LX</div>
+        <div>
+          <h1 class="title">LOANX — Income Verification</h1>
+          <p class="sub">Requirements Specification — v0.2 • 28 Sep 2025</p>
+        </div>
+      </div>
+
+      <nav class="toc" aria-label="Table of contents">
+        <a href="#business-problem">Business Problem</a>
+        <a href="#process"> High Level Process </a>
+        <a href="#requirements">Business Requirements</a>
+        <a href="#stakeholders">Stakeholders</a>
+        <a href="#scope">Project Scope</a>
+        <a href="#epic">Epic</a>
+        <a href="#user-stories">User stories</a>
+        <a href="#prototypes">Prototypes</a>
+        <a href="#categorization">Categorization rules</a>
+        <a href="#income-calculation">Income calculation</a>
+        <a href="#security-retention">Security & retention</a>
+        <a href="#risks">Risks</a>
+        
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="meta">
+        <div class="by">Created by: <strong>Bhakti Naik</strong></div>
+        <div class="by">Date: <strong>28 September 2025</strong></div>
+      </div>
+
+      <header>
+        <h2>LOANX — Income verification system</h2>
+        <p class="lead">Requirements specification for automated income verification from Bank transactions </p>
+        <p class="lead"> (PSD2 bank connect + manual upload fallback).</p>
+      </header>
+
+      <section id="business-problem" class="card" aria-labelledby="bp-title">
+        <h3 id="bp-title">Business problem</h3>
+        <p>
+          Early customers report the income verification step is slow, manual and error-prone. Applicants currently
+          download/upload bank statements or pay stubs which operations review manually. This adds 2–3 days to processing
+          and is a major bottleneck.
+        </p>
+        <ul>
+          <li>Goal: automate income verification to speed up loan decisioning and reduce manual workload by ≥60%.</li>
+          <li>Primary method: analyse bank transactions via PSD2 API connection; manual upload as fallback.</li>
+        </ul>
+      </section>
+      <section id="process" class="card" aria-labelledby="req-title">
+        <h3 id="process-title">High-Level End to End Process Flow</h3>
+
+        <h4 id="process-subtitle">Internal Application flow without access to customer</h3>
+        <img style="width:100%" src="image1.png" alt="Internal Application Flow for Internal User" class="photo" />
+
+        <h4 id="process-subtitle">Web Application for Customer to fill application and upload Documents</h3>
+        <img style="width:100%" src="image2.png" alt="Internal Application Flow for Internal User" class="photo" />
+      </section>
+      <section id="requirements" class="card" aria-labelledby="req-title">
+        <h3 id="req-title">Business requirements</h3>
+        <ol>
+          <li><strong>BR1</strong> — Integrate a PSD2-compliant third-party provider so applicants can securely connect bank accounts.</li>
+          <li><strong>BR2</strong> — Provide manual upload fallback (PDF, DOC, XLS/XLSX) but drive adoption of automated flow.</li>
+          <li><strong>BR3</strong> — Automate income verification: analyse transactions to verify stated income and pre-fill income fields.</li>
+          <li><strong>BR4</strong> — Must be secure, trustworthy, and reduce manual ops workload by at least 60% for new applications.</li>
+        </ol>
+      </section>
+
+      <section id="stakeholders" class="card" aria-labelledby="stake-title">
+        <h3 id="stake-title">Stakeholders</h3>
+        <div>
+          <div>
+            <h4>Primary roles</h4>
+            <ul>
+              <li><strong>Applicant</strong> — Connect bank(s) or upload statements.</li>
+              <li><strong>Compliance Officer</strong> — Review uploads & extracted data; trigger bank connections (with consent).</li>
+              <li><strong>Underwriter</strong> — Review income analysis, anomalies, and take include/exclude/report actions.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="scope" class="card" aria-labelledby="scope-title">
+        <h3 id="scope-title">Project Scope</h3>
+        <div>
+          <div>
+            <h4>In Scope</h4>
+            <ul>
+              <li>Income analysis through bank statements only.</li>
+              <li>Region: Italy (GDPR & Italian retention rules apply).</li>
+            </ul>
+
+            <h4>Out Scope</h4>
+            <ul>
+              <li>Income Analysis through other income sources, OTP registration step and new loan creation flow.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+       <section id="epic" class="card" aria-labelledby="us-title">
+        <h3 id="us-title">Epic </h3>
+        <div>
+          <h4>Automated Income Verification from the Bank transactions for Faster & Accurate Loan Decisions </h4>
+          <p> As a Loan Operation User,  </p>
+          <p>I want to securely and automatically verify customer’s income by connecting his/her bank account and view automated analysis report of bank transactions</p> 
+          <p>So that I can get a faster, more reliable loan and accurate decision with minimum manual interventions </p>
+
+        </div>
+       </section>
+
+
+      <section id="user-stories" class="card" aria-labelledby="us-title">
+        <h3 id="us-title">User stories </h3>
+
+        <h4>US1 — Loan Applicant connects bank (PSD2 API)</h4>
+
+        <h5> User Story</h4>
+        <p>As a Loan Applicant</p>
+        <p> want to connect my banks to LoanX System </p>
+        <p> So that I can share correct and real-time bank transactions history to expedite my loan process and reduce manual efforts.</p>
+
+        <h5> Acceptance Criteria</h4>
+
+        <ol>
+          <li>When Applicant registered using the  <a href="#createloan">Create Loan form</a>, the consent pop-up opens that contains to connect to bank account and 
+            to store the data in LoanX system. It shall contain all the terms, conditions and details about data security as per GDPR guidelines. </li>
+          <li>When Applicant give consent, the page shall direct to <a href="#connectbank"> Connect to bank screen. </a></li>
+          <li>When applicant click on ‘Connect to Bank’ button, on next screen all Banks shall be listed. Refer <a href="#selectbank"> select bank screen.</a> </li>
+          <li>When user select the Bank, the Bank transaction shall be captured and displayed on screen. This read only transaction data shall be visible to Applicant, Compliance Officer and Underwriter. Refer <a href="#transactionhist"> Bank Transaction History screen. </a>
+          <li>The guidelines to categorize bank statement is <a href="#cat-title">here. </a></li>
+          <li>Applicant can connect to multiple bank account by clicking on button ‘Connect to Bank’ on  Bank Transaction History page. When clicked on the button, page shall redirect to  Refer <a href="#selectbank"> Select bank screen.</a> </li>
+          <li>Any API connection failure shall trigger a fallback option to manual upload, with clear error messages. </li>
+          <li>If at any step there is error occur due to network/server issue/Technical issue/other, the relevant Error message shall be displayed. </li>
+          <li>System shall allow applicants to securely connect to their bank using a PSD2-compliant API provider (Plaid). </li>
+          <li>Strong Customer Authentication (SCA) shall be enforced during the bank connection process (2FA or OTP). </li>
+          <li>Customer consent must be explicitly captured, logged, and stored for audit. </li>
+          <li>Retrieved bank transactions must be encrypted in transit (TLS 1.3) and at rest (AES-256). </li>
+          <li>Data retention shall follow GDPR rules: stored only for the loan lifecycle and deleted within 30 days of rejection/withdrawal. </li>
+          <li>System shall support storing transaction history from multiple bank accounts under one applicant ID. </li>
+          <li>Any API connection failure shall trigger a fallback option to manual upload, with clear error messages. </li>
+          <li>Audit logs shall record connection attempts, data retrieval, and consent status. </li>
+          <li>The Screen designs and flow can be referred at 1. <a href="#connectbank"> Connect to bank screen. </a> 2.  <a href="#selectbank"> Select bank screen.</a> 3.  <a href="#transactionhist"> Bank Transaction History. </a> </li>
+        </ol>
+
+        <br>
+
+        <h4>US2 — Loan Applicant uploads bank statement</h4>
+        
+        <h5>User story</h5>
+        <p>As a Loan Applicant 
+        <p>I want to upload my bank statement to LoanX System</p> 
+        <p>So that I can share correct transaction history securely to expedite my loan process.</p>
+
+        <h5>Acceptance Criteria</h5>
+        
+        <ol>
+          <li>When Applicant registered using the <a href="#createloan">Create Loan form</a>, the consent pop-up opens that contains to connect to bank account and to store the data in LoanX system. It shall contain all the terms, conditions and details about data security as per GDPR guidelines. </li>
+          <li>When Applicant give consent, the page shall direct to <a href="#connectbank"> Connect to bank screen</a>. </li>
+          <li>When applicant click on ‘Upload Bank Statement’ button. </li>
+          <li>Applicants shall be able to upload bank statements in PDF, DOC, XLS, XLSX formats. </li>
+          <li>System shall tag uploaded documents with who uploaded, when, and for which customer (audit). </li>
+          <li>The files size must be less than 5 MB. </li>
+          <li>Uploaded files shall be virus-scanned before storage. </li>
+          <li>Applicant must receive confirmation once upload is complete and data is processed. </li>
+          <li>On success, extracted income data shall automatically pre-fill into the income analysis system & shall be directed to <a href="#transactionhist"> Bank Transaction History</a>. </li>
+          <li>The guidelines to categorize bank statement is <a href="#cat-title">here </a></li>. </li>
+          <li>Applicant can upload multiple Bank statements by clicking on button ‘Connect to Bank’ on  <a href="#transactionhist"> Bank Transaction History </a>. When clicked on the button, page shall redirect to  Refer <a href="#selectbank"> select bank screen</a>. </li> </li>
+          <li>Files shall be encrypted at rest (AES-256) and access-controlled. </li>
+          <li>Uploaded documents shall be retained only for regulatory purposes (max 10 years for AML, or as per Italian law). </li>
+          <li>GDPR-compliant consent for document storage must be captured. </li>
+          <li>The captured transactions can be categorized and analysed by system based on algorithm for income analysis. </li> 
+          <li>If File format is not supported, File size is large, or data cannot be extracted from the file the relevant error message shall be displayed. </li>
+          <li>the transaction is already present in the system and user tries to upload the file multiple times, transactions must not be duplicated.</li> 
+        </ol>
+        
+        <br>
+        <h4>US3 — Compliance Officer connects customer’s bank </h4>
+        
+        <h5>User story</h5>
+        <p>As a Compliance Officer 
+        <p>I want to connect customer’s bank to LoanX System </p> 
+        <p>So that I can extract correct and real-time bank transactions history to expedite their loan process and reduce manual efforts.</p>
+
+        <h5>Acceptance Criteria</h5>
+        
+        <ol>
+          <li>Compliance Officer shall be able to trigger a bank connection using customer consent and PSD2 API. </li>
+          <li>System shall restrict this function to authorized Compliance users only (role-based access). </li>
+          <li>Strong Customer Authentication must still be performed by the customer, even when initiated by Compliance. </li>
+          <li>System shall tag uploaded documents with who uploaded, when, and for which customer (audit). </li>
+          <li>Retrieved data must be encrypted and logged for audit.</li> 
+          <li>Consent validity and expiry must be checked before reusing stored consents. </li>
+          <li>Compliance Officer must see a confirmation once connection is successful. </li>
+        </ol>
+
+        <br>
+        <h4>US4 — Compliance Officer uploads customer’s bank statement </h4>
+        
+        <h5>User story</h5>
+        <p>As a Compliance Officer 
+        <p>I want to upload bank statement of customer to LoanX System </p> 
+        <p>So that I can extract correct transaction history securely to expedite my loan process. </p>
+
+        <br>
+        <h4>US5 — Compliance Officer refreshes customer’s transaction history </h4>
+
+        <h5>User story</h5>
+
+        <p>As a Compliance Officer 
+        <p>I want to refresh transaction history of customer’s connected bank account</p> 
+        <p>So that I can review real-time and accurate data. </p>
+
+
+        <br>
+        <h4>US6 — Underwriter reviews income analysis report</h4>
+        
+        <h5>User story</h5>
+
+        <p>As a Underwriter
+        <p>I want to review Income Analysis report generated by system based on transaction history </p> 
+        <p>So that I can verify customer’s Net Income against the stated income.  </p>
+
+        <h5>Acceptance Criteria</h5>
+
+        <ol>
+          <li>When clicked on “Assess the Risk” button, the ‘Bank Accounts transaction Analysis Report’ shall be displayed 
+            (provided that no Anomaly transactions found or Anomaly transactions either excluded or included in income calculation with no reported transaction)</li>
+          <li>If anomaly transactions found, reports shall not be generated and the screen directed to <a href="#anomalytransc"> Anomaly Transaction Listing</a> </li>
+          <li>All Income analysis fields shall be saved in database along with audit logs: 
+            <ol>
+              <li>Monthly Gross income and Net Income for each month. </li>
+              <li>Yearly Gross Income and Net Income for available years.</li> 
+              <li>Score. Rating (Score) logic can be found in underwriting guidelines</li>
+              <li>Report Summary</li>
+            </ol>
+          </li>
+          <li>Report shall show breakdown in following sections:  </li>
+            <ol>
+              <li>Stated Income: It is filled by applicant in application form </li>
+              <li>Report Visual Representation: (Score from 0 to 100 divide the scale likewise to place the arrow) 
+                <ul>
+                  <li>Poor: For Score 0 to 20 </li>
+                  <li>Below Average: For Score 21 to 40 </li>
+                  <li>Fair: For Score 41 to 60 </li>
+                  <li>Good: For Score 61 to 80 </li>
+                  <li>Excellent: For Score 81 to 100 </li>
+                </ul>
+              </li>
+              <li>Monthly Net and Gross Income for 6 months – Refer to <a href="#income-calculation">underwriting guidelines</a> to calculate income.</li>
+              <li>Last 2 years Net and Gross Income – Refer to <a href="#income-calculation">underwriting guidelines</a> to calculate income. </li>
+              <li>Report Summary: Based on Score the Summary shall be stored to database and shall be displayed to report. </li>
+            </ol>
+          <li>Please refer to screen design for <a href="#report"> Bank Transaction History Analysis Report. </a>. </li>
+          <li>Report must be accessible only to authorized Underwriters. </li>
+          <li>Underwriter must be able to download/print for audit purposes. </li>
+          <li>All views/downloads must be logged. </li>
+        </ol>
+
+        <br>
+        <h4>US7 — Underwriter views Anomaly Transactions </h4>
+        
+        <h5>User story</h5>
+
+        <p>As a Underwriter
+        <p>I want to view Anomaly transactions </p> 
+        <p>So that I can review to assess the risk.</p>
+
+        <h5>Acceptance Criteria</h5>
+
+        <ol>
+          <li>When clicked on '<a href="#transactionhist">Assess Risk Button</a>' the Anomaly transactions shall be displayed, if any found. </li>
+          <li>The logic/criteria for anomaly detection shall be configurable by Risk team, please refer <a href="#anomaly-logic">anomaly transactions underwriting guidelines</a>Underwriting guidelines.  </li>
+          <li>System shall flag anomalies (irregular deposits, large cash inflows, inconsistent income). </li>
+          <li>Anomalies must be visually distinguished in the underwriting dashboard. </li>
+          <li>System shall allow filtering anomalies by Bank Name, Account type, Transaction category. </li>
+          <li>Audit trail shall record all anomalies flagged for a given customer. </li>
+          <li>Please refer to <a href="#anomalytransc"> Anomaly Transaction History screen design. </a> </li>
+          <li>The Button shall be provided for each Anomaly transaction to Exclude transaction from Income calculation with No Risk, to Exclude transaction from Income Calculation with Risk, to Include transaction to Income Calculation.  </li>
+          <li>All Anomaly transactions shall be saved in the database along with reason/category of risk and audits. 
+            <ul>
+              <li>Underwriter ID, Timestamp, Transaction ID, Action taken (Include/Exclude/Report Risk), Attached documents and comments </li>
+              <li>Audit Logs must be immutable and accessible to Compliance Officers for review </li>
+            </ul>
+          </li>
+          <li>“Assess Risk” Button Shall not be enabled unless all Anomaly transactions are cleared with above actions. </li>
+          <li>When clicked on ‘Assess the Risk’ the <a href="#report"> Bank Transactions Analysis Report </a> shall be generated and saved.</li>
+        </ol>
+
+        <br>
+        <h4>US8 — Underwriter excludes anomaly as “No Risk” </h4>
+        
+        <h5>User story</h5>
+
+        <p>As a Underwriter
+        <p>I want to exclude Anomaly transactions  </p> 
+        <p>So that I can manually improve the income analysis process and mark the transaction as NO RISK. </p>
+
+        <h5>Acceptance Criteria</h5>
+
+        <ol>
+          <li>Underwriter must be able to manually mark anomaly as “No Risk.” By using link ‘Exclude’ on the <a href="#anomalytransc">anomaly transaction listing page</a>.  
+          <li>When clicked on the link pop-up opens to submit comment/justification and supporting documents. The document must be in doc, pdf, excel format with maximum size 2 mb.  </li>
+          <li>Supporting documents must be encrypted at rest (AES-256) and in transit (TLS 1.2+). </li>
+          <li>Data retention rules: keep only as long as legally required (e.g., 10 years in Italy for financial records). </li>
+          <li>Refer to below form: </li>
+            <img style="width:70%" src="Screen Designs/exclude.jpg" alt="Exclude transaction from Income calculation" class="photo" />
+          <li>When clicked on ‘Exclude’ button of pop-up window, the system shall log who excluded anomaly, when, comments and documents.
+            <ul>Underwriter ID, Timestamp, Transaction ID, Action taken (Exclude), Attached documents and comments</ul>
+          </li> 
+          <li>Once excluded, anomaly must not affect income analysis. But the corresponding transaction must not be considered for income calculation. </li>
+          <li>Compliance team must have read-only access to these decisions for audits. </li>
+          <li>Refer to <a href="#anomalytransc"> Anomaly Transaction History screen design </a>. </li>
+        </ol>
+
+        <br>
+        <h4>US9 — Underwriter excludes anomaly and reports AML risk  </h4>
+        
+        <h5>User story</h5>
+
+        <p>As a Underwriter
+        <p>I want to exclude Anomaly transactions  </p> 
+        <p>So that I can manually improve the income analysis process and report the AML Risk to compliance officer.</p>
+
+        <h5>Acceptance Criteria</h5>
+
+        <ol>
+          <li>Underwriter must be able to manually report anomaly transaction by using link ‘Report Transaction’ on the <a href="#anomalytransc"> anomaly transaction listing </a> page.  </li>
+          <li>When clicked on the link pop-up opens to submit comment/justification and supporting documents. The document must be in doc, pdf, excel format with maximum size 2 mb.  </li>
+          <li>Supporting documents must be encrypted at rest (AES-256) and in transit (TLS 1.2+). </li>
+          <li>Data retention rules: keep only as long as legally required (e.g., 10 years in Italy for financial records). </li>
+          <li>Refer to below form: </li>
+             <img style="width:70%" src="Screen Designs/ReportAML.jpg" alt="Exclude transaction from Income calculation and Report to Compliance" class="photo" />
+          <li>When clicked on ‘Report’ button of pop-up window:</li>
+            <ul>
+              <li>The system shall log who reported anomaly, when, comments and documents. 
+	              <ul>Underwriter ID, Timestamp, Transaction ID, Action taken (Report Risk), Attached documents and comments</ul>
+              </li>
+              <li>The email to Compliance officer and Loan officer will be sent with the details: 
+                <ul>
+                  <li>Link to loan application in the system that is accessible on click with secured login. </li>
+                  <li>Underwriter Name</li>
+                  <li>Customer Name</li>
+                  <li>Business Name</li>
+                  <li>Reason/s for Anomaly found </li>
+                </ul>
+            </ul>
+          <li>The Transaction History Report must not be generated.</li>
+          <li>Compliance can take further action to close the loan file with report it to Government body. Or at exception on basis of supporting document, Compliance can ask underwriter to take Exclude/Include action. – this flow is not considered right now for implementation </li>
+        </ol>
+      
+      <br>
+      
+      <h4>US10 — Underwriter includes anomaly with supporting document for consider Income </h4>
+        
+        <h5>User story</h5>
+
+        <p>As a Underwriter
+        <p>I want to include Anomaly transactions  </p> 
+        <p>So that I can I can manually improve the income analysis process with supporting document and comment.</p>
+
+        <h5>Acceptance Criteria</h5>
+
+        <ol>
+          <li>The system must allow the Underwriter to select a flagged anomaly transaction and reclassify it as an “Included Exception.” Using link ‘Include’ on the <a href="#anomalytransc"> anomaly transaction listing </a> page. </li>
+          <li>When clicked on the link pop-up opens to submit comment/justification and supporting documents. The document must be in doc, pdf, excel format with maximum size 2 mb.  3. The system must require the Underwriter to upload at least one supporting document (e.g., pay stub, contract, invoice, tax return, or employer confirmation letter) to validate why the transaction is an exception. </li>
+          <li>Supporting documents must be encrypted at rest (AES-256) and in transit (TLS 1.2+). </li>
+          <li>Data retention rules: keep only as long as legally required (e.g., 10 years in Italy for financial records). </li>
+          <li>Refer to below form: </li>
+          <img style="width:70%" src="Screen Designs/include.jpg" alt="Exclude transaction from Income calculation and Report to Compliance" class="photo" />
+          <li>When clicked on ‘Include’ button of pop-up window, the system shall log who included anomaly, when, comments and documents. 
+            <ul> <li>Underwriter ID, Timestamp, Transaction ID, Action taken (Include), Attached documents and comments. 
+            </ul> </li>
+          <li>Once Included, income calculation engine shall consider the amount for income calculation. </li>
+          <li>Compliance team must have read-only access to these decisions for audits. </li>
+         </ol>
+    
+
+        <!-- <p style="color:var(--muted);font-size:13px;margin-top:8px;">(Full acceptance criteria are present in the source document.)</p> -->
+      </section>
+
+      <section id="prototypes" class="card" aria-labelledby="proto-title">
+        <h3 id="proto-title">Prototypes</h3>
+                
+        <div id="createloan" class="proto"> <h4>Create New Loan</h4><br>
+        <img style="width:90%" src="Screen Designs/Create New Loan.png" alt="Create New Loan" class="photo" />
+        </div>
+
+        <div id="loanlist" class="proto"><h4>Loan Listing for Customers</h4><br>
+        <img style="width:90%" src="Screen Designs/Loan Listing.png" alt="Loan Listing for Business" class="photo" />
+        </div>
+
+        <div id="connectbank" class="proto"><h4> Connect to Bank </h4> <br>
+        <img style="width:90%" src="Screen Designs/Assess Risk - Connect to Bank Step 1.png" alt="Connect to Bank - step 1" class="photo" />
+        </div>
+
+        <div id="selectbank" class="proto"> <h4>Select Bank </h4> <br>
+          <img style="width:90%" src="Screen Designs/Assess Risk - Connect to Bank Step 2.png" alt="Select Bank - step 2" class="photo" />
+        </div>
+
+        <div id="transactionhist" class="proto"> <h4>Bank Transaction History</h4><br>
+          <img style="width:90%" src="Screen Designs/Assess Risk - Bank Details - Step 3 B.png" alt="Bank Transaction History - step 3" class="photo" />
+        </div>
+
+        <div id="anomalytransc" class="proto"><h4>View Anomaly Transactions to take Action </h4><br>
+          <img style="width:90%" src="Screen Designs/Assess Risk - Anamoly Transaction.png" alt="View Anomaly Transactions to take Action" class="photo" />
+        </div>
+
+        <div id="report" class="proto"> <h4> Transaction history analysis Report </h4><br>
+           <img style="width:90%" src="Screen Designs/Underwriting_Risk Result.png" alt="Transaction history analysis Report" class="photo" />
+        </div>
+        
+      </section>
+
+      <section id="categorization" class="card" aria-labelledby="cat-title">
+        <h3 id="cat-title">Bank transaction categorization</h3> <br>
+
+        <h4>Bank Statement Listing fields</h4>
+        <p><strong>Mandatory bank statement fields:</strong>  <br>
+        transaction ID, date, amount, currency, description, account ID, counterparty.</p>
+
+        <p><strong>Normalization:</strong>  <br>
+        Standardize transaction formats, unify credit/debit labeling across banks.</p>
+        
+        <p><strong>Multi-account Mapping:</strong>  <br>
+        Support multiple business accounts under a single legal entity.</p>
+
+        <br>
+        
+        <h4>Revenue / Income categories (examples)</h4> <br>
+        <table class="spec" aria-label="Revenue categories">
+          <thead>
+            <tr><th>Category</th><th>Example/ keywords/ patterns</th><th>Logic/Rules</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Sales Revenue</td><td>INVOICE, CUSTOMER_NAME</td><td>Recurring deposits matching issued invoices</td><td>Monthly or irregular revenue tracked separately</td></tr>
+            <tr><td>Service Income</td><td>CONTRACT, SERVICE</td><td>Credits from clients for services rendered</td><td>Use invoice matching if available</td></tr>
+            <tr><td>Government Grants/ Subsidies</td><td>GRANT, SUBSIDY</td><td>Regular or one-time inflows from government </td><td>Track separately for compliance</td></tr>
+            <tr><td>Refunds /Adjustments</td><td>CREDIT NOTE, RETURN,TRANSFER FROM SISTER COMPANY/BUSINESS </td><td>Separate from true income</td><td>Excluded from net revenue</td></tr>
+          </tbody>
+        </table>
+        <br>
+
+        <h4 style="margin-top:12px">Expense categories </h4>
+        <table class="spec" aria-label="Expense categories">
+          <thead>
+            <tr><th>Category</th><th>Example/keywords</th><th>Logic/Rules</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Payroll / Salaries</td><td>PAYROLL, SALARY</td><td>Monthly recurring debits to employees</td><td>Exclude owner equity draws</td></tr>
+            <tr><td>Taxes</td><td>TAX, VAT, INPS</td><td>Mandatory outgoing payments</td><td>Needed for cash flow and DTI ratio</td></tr>
+            <tr><td>Operating Expenses</td><td>RENT, UTILITIES</td><td>Recurring operational expenses</td><td>For cash flow modelling</td></tr>
+            <tr><td>Loan / Debt Payments </td><td>CREDIT LINE, LOAN</td><td>Debt servicing payments</td><td>Used for debt-to-income calculation</td></tr>
+            <tr><td>Vendor Payments</td><td>SUPPLIER_NAME,INVOICE</td><td>Supplier payments for goods/services</td><td>Track timing & amounts</td></tr>
+          </tbody>
+        </table>
+
+        <br>
+
+        <h4 id="anomaly-logic" style="margin-top:12px">Risk / Anomaly categories</h4>
+        <table class="spec" aria-label="Anomaly transaction logic">
+          <thead>
+            <tr><th>Category</th><th>Example/keywords</th><th>Logic/Rules</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Large One-Off Transfers </td><td>> Configured Threshold</td><td>Unexpected inflows or outflows</td><td>Flag for AML / fraud review</td></tr>
+            <tr><td>Cross-Border / FX Transactions</td><td>Foreign IBAN, SWIFT transfers </td><td>Flag for AML / FX exposure</td><td>Check source legitimacy</td></tr>
+            <tr><td>Irregular Payroll or Bonus Payments</td><td>Off-cycle payments</td><td>Detect non-recurring spikes</td><td>Underwriter review</td></tr>
+            <tr><td>Cash Withdrawals</td><td>ATM, CASH</td><td>High-volume cash withdrawals flagged </td><td>AML monitoring</td></tr>
+          </tbody>
+        </table>
+        <br>
+      </section>
+
+      <section id="income-calculation" class="card" aria-labelledby="calc-title">
+        <h3 id="calc-title">Income calculation</h3>
+        <p>Formulas described in the spec:</p>
+        <ul>
+          <li><strong>Gross Income</strong> = sum of all valid income items (per period).</li>
+          <li><strong>Net Income</strong> = Gross Income − Expenses.</li>
+          <li><strong>Annual Gross/Net Income</strong>  for calendar year (1 Jan – 31 Dec).</li>
+          <li>          
+            <strong>Monthly average Income</strong> <br>
+            <ul>Average gross monthly Income = Annual Gross Income / 12</ul>
+            <ul>Average net monthly Income = Annual Net Income / 12
+            </ul>
+          </li>
+        </ul>
+
+        
+            
+          
+      </section>
+
+      <section id="security-retention" class="card" aria-labelledby="sec-title">
+        <h3 id="sec-title">Security, consent & retention</h3>
+        <ul>
+          <li>All consent captured & logged (GDPR Art. 7).</li>
+          <li>Encryption: TLS 1.3 in transit; AES-256 at rest.</li>
+          <li>File virus scanning and size limits (uploads ≤ 5 MB; support docs for anomalies ≤ 2 MB).</li>
+          <li>Retention: transaction data only for loan lifecycle; delete within 30 days of rejection/withdrawal; documents retained up to regulatory timeframe (e.g., 10 years for AML or as per Italian law).</li>
+          <li>Audit logs: connection attempts, retrievals, views, downloads, and anomaly actions (immutable, read-only for compliance where required).</li>
+        </ul>
+      </section>
+
+      <section id="risks" class="card" aria-labelledby="risk-title">
+        <h3 id="risk-title">Risks</h3>
+        <ol>
+          <li><strong>Tech risk:</strong> Third-party provider reliability, schema changes, downtime.</li>
+          <li><strong>Underwriting risk:</strong> Changes to income calculation rules or new fraud scenarios requiring rule updates.</li>
+          <li><strong>Legal/compliance:</strong> Evolving laws around storing/transferring financial/personal data.</li>
+        </ol>
+      </section>
+
+      
+    </main>
+  </div>
+</body>
+</html>
